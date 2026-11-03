@@ -7,3 +7,6 @@ Create k8s manifests + wrap into Helm chart
 Add port forwarding instructions to README
 
 Name constraints in the migration file
+
+Ideally there's some Terraform as well which can spin up an EKS
+cluster where we can deploy this.
