@@ -33,6 +33,10 @@ any production ready system..
 It is built up by hand, rather than using any templated stack.  
 It therefore lacks many expected features such as user management.
 
+### Migrations
+
+To generate: `uv run alembic revision --autogenerate -m ""`
+
 ## Running
 
 Python dependencies are managed by `uv`.

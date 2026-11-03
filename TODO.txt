@@ -5,3 +5,5 @@ Create Dockerfiles for the containers
 Create k8s manifests + wrap into Helm chart
 
 Add port forwarding instructions to README
+
+Name constraints in the migration file
