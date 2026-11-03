@@ -1,1 +1,7 @@
 Deployment should run pyright (or it should be a check in GitHub)
+
+Create Dockerfiles for the containers
+
+Create k8s manifests + wrap into Helm chart
+
+Add port forwarding instructions to README

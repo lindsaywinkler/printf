@@ -36,3 +36,11 @@ It therefore lacks many expected features such as user management.
 ## Running
 
 Python dependencies are managed by `uv`.
+
+Create a cluster locally with `kind create cluster`
+
+Deploy Helm chart from `/deploy` directory with `helm install printf .`
+
+Forward ports out with `kubectl port-forward svc/postgres 5432:5432`
+
+Run alembic migrations with `uv run alembic upgrade head`
