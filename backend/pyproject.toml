@@ -8,6 +8,8 @@ authors = [
 ]
 requires-python = ">=3.9"
 dependencies = [
+    "alembic>=1.16.5",
+    "psycopg[binary]>=3.2.13",
     "pyright>=1.1.414",
     "ruff>=0.17.3",
     "sqlmodel>=0.0.34",
