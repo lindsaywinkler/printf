@@ -74,6 +74,11 @@ class Job(SQLModel, table=True):
     name: str
     event_id: int = Field(foreign_key="event.id")
 
+    # Physical jobs operate on builds
+    # We print the whole build, or wash it, cure it, or separate into parts
+    build_id: int | None = Field(default=None, foreign_key="build.id", index=True)
+    build: Build | None = Relationship()
+
 
 class Event(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
