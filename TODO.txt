@@ -10,3 +10,9 @@ Name constraints in the migration file
 
 Ideally there's some Terraform as well which can spin up an EKS
 cluster where we can deploy this.
+
+Next:
+- Strawberry to expose via GraphQL (which will include GraphiQL UI)
+- hand rolled queries just using fetch on the client side to get
+chunks of JSON data to work with.
+- Then we can start rendering UI that represents the JSON.
