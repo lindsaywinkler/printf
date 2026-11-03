@@ -2,7 +2,15 @@
 Create a session in the database.
 """
 
-from sqlmodel import create_engine
+import os
+from collections.abc import Iterator
 
-database_url = ""
-engine = create_engine()
+from sqlmodel import Session, create_engine
+
+database_url = os.environ["DATABASE_URL"]
+engine = create_engine(database_url)
+
+
+def get_session() -> Iterator[Session]:
+    with Session(engine) as session:
+        yield session
