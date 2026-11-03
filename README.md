@@ -45,6 +45,20 @@ Create a cluster locally with `kind create cluster`
 
 Deploy Helm chart from `/deploy` directory with `helm install printf .`
 
-Forward ports out with `kubectl port-forward svc/postgres 5432:5432`
+To connect to the db with `psql` during development/debugging,
+forward ports out with `kubectl port-forward svc/postgres 5432:5432`.
+
+This port forwarding is necessary to run alembic:
 
 Run alembic migrations with `uv run alembic upgrade head`
+(Ideally there's a hook in the Helm chart to do this automatically)
+
+Build backend docker imagen with `docker build -t printf-api:dev backend`
+
+Docker image is just built locally so push it into the kind cluster
+with `kind load docker-image printf-api:dev`
+
+(Ideally the local dev setup uses watchers to do this automatically!)
+
+And then we need to forward the ports: `kubectl port-forward svc/backend 8000:80`
+(when actually running the application, we don't forward Postgres port!)

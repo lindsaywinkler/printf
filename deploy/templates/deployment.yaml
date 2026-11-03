@@ -26,7 +26,9 @@ spec:
               value: printf
             - name: POSTGRES_USER
               value: admin
-            # Dev only: move this to a Secret before deploying anywhere real.
+            # !!! Very very bad!
+            # Only for hacking pieces together quickly to demo code!
+            # Do not really do this!!
             - name: POSTGRES_PASSWORD
               value: changeme
           volumeMounts:
@@ -50,3 +52,42 @@ spec:
         resources:
           requests:
             storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  labels:
+    app: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: backend
+          image: printf-api:dev
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8000
+          env:
+            - name: DATABASE_URL
+              value: postgresql+psycopg://admin:changeme@postgres:5432/printf
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 2
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 20
