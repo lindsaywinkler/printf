@@ -3,13 +3,33 @@ Database models are defined here.
 """
 
 from datetime import datetime
+from enum import StrEnum
 
-from sqlmodel import Field, SQLModel
+from sqlmodel import Field, Relationship, SQLModel
+
+
+class PrinterStatus(StrEnum):
+    ready = "ready"
+    offline = "offline"
+    breakdown = "breakdown"
+    no_resin = "no_resin"
+    printing = "printing"
+
+
+class Material(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    name: str
 
 
 class Printer(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     name: str
+    highest_resolution: int  # in microns
+
+    # None when the printer has no material loaded
+    current_material_id: int | None = Field(default=None, foreign_key="material.id")
+    current_material: Material | None = Relationship()
+    status: PrinterStatus = PrinterStatus.offline
 
 
 class Wash(SQLModel, table=True):
@@ -22,19 +42,28 @@ class Cure(SQLModel, table=True):
     name: str
 
 
-class Material(SQLModel, table=True):
+class Build(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     name: str
+
+    # Resolution and material for a build are derived from the parts
+    # in the build.  Each time we add a part, we check that the
+    # part has the same resolution and material as the parts already
+    # in the build.
+    parts: list["Part"] = Relationship(back_populates="build")
 
 
 class Part(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
+    # A part can exist on its own, or it can be grouped into a build
+    # ie. a part belongs to zero or one builds
     name: str
 
-
-class Build(SQLModel, table=True):
-    id: int | None = Field(default=None, primary_key=True)
-    name: str
+    build_id: int | None = Field(default=None, foreign_key="build.id", index=True)
+    build: Build | None = Relationship(back_populates="parts")
+    required_resolution: int  # in microns
+    required_material_id: int | None = Field(default=None, foreign_key="material.id")
+    required_material: Material | None = Relationship()
 
 
 # A Job could be a physical job or a computational job.
