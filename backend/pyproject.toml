@@ -12,6 +12,7 @@ dependencies = [
     "fastapi[standard]>=0.128.8",
     "psycopg[binary]>=3.2.13",
     "sqlmodel>=0.0.34",
+    "strawberry-graphql>=0.283.3",
 ]
 
 [tool.uv]
