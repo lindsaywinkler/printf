@@ -19,6 +19,14 @@ class PrinterStatus(StrEnum):
 class Material(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     name: str
+    # The time it takes a particular volume of resin
+    # to cure will also be dependent on the properties
+    # of the resin itself.  This is a multiplier on
+    # the resin volume to give required cure time.
+    #
+    # In the real world, the geometry of the shape
+    # would mattter too.
+    cure_time_factor: float
 
 
 class Printer(SQLModel, table=True):
@@ -32,14 +40,34 @@ class Printer(SQLModel, table=True):
     status: PrinterStatus = PrinterStatus.offline
 
 
+class WashStatus(StrEnum):
+    ready = "ready"
+    offline = "offline"
+    breakdown = "breakdown"
+    no_alcohol = "no_alcohol"
+    washing = "washing"
+
+
+# Wash is a machine, probably poorly named.
+# But this model is to model the wash station.
 class Wash(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     name: str
+    status: WashStatus = WashStatus.offline
 
 
+class CureStatus(StrEnum):
+    ready = "ready"
+    offline = "offline"
+    breakdown = "breakdown"
+    curing = "curing"
+
+
+# Cure is the curing station - a machine. Poorly named.
 class Cure(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     name: str
+    status: CureStatus = CureStatus.offline
 
 
 class Build(SQLModel, table=True):
@@ -51,6 +79,14 @@ class Build(SQLModel, table=True):
     # part has the same resolution and material as the parts already
     # in the build.
     parts: list["Part"] = Relationship(back_populates="build")
+
+    # TODO - Add calculated field which determines print time
+    # according to height of the build, which is the height of the
+    # tallest part in the build.
+
+    # TODO - Add calculated field which determines cure time
+    # according to sum of volume of all parts and a cure
+    # factor for the resin/material itself.
 
 
 class Part(SQLModel, table=True):
@@ -65,6 +101,35 @@ class Part(SQLModel, table=True):
     required_material_id: int | None = Field(default=None, foreign_key="material.id")
     required_material: Material | None = Relationship()
 
+    # Intended to capture the idea that this part
+    # must be ready to ship by this time.  This is to
+    # allow addition of a lag time where the part can
+    # be held until enough matching parts are available
+    # to construct a sensible build.
+    #
+    # Note that all handling of the part must be complete by this
+    # time: printed, washed and cured.
+    due_time: datetime
+
+    # Height in mm, which will be converted to microns when
+    # calculating build print time.
+    #
+    # In the real world, parts would be rotated according to their
+    # geometry in order to give both a physically stable print and
+    # to minimise print time, but for simplicity of demo, we just
+    # specify assumed part height directly.
+    #
+    # mm maybe a poor choice because not an SI unit, but
+    # likely most natural unit for a user to specify
+    height: float
+
+    # Volume in cm^3.  Again, not an SI unit, but probably
+    # the most natural way for a user to think of volume.
+    #
+    # Volume is required because the cure time will be derived
+    # from volume and material (Elsey's two potato problem)
+    volume: float
+
 
 # A Job could be a physical job or a computational job.
 # A physical job could be print, wash, cure, separate
@@ -78,6 +143,14 @@ class Job(SQLModel, table=True):
     # We print the whole build, or wash it, cure it, or separate into parts
     build_id: int | None = Field(default=None, foreign_key="build.id", index=True)
     build: Build | None = Relationship()
+
+    # TODO - Add expected duration, which will come from the build
+    # This will feed into scheduling: given a start time and duration,
+    # we can derive completion time.
+    #
+    # Note that wash and cure jobs will be independent of build
+    # vertical height but curing time will depend on printed volume
+    # and the resin in the real world.
 
 
 class Event(SQLModel, table=True):
