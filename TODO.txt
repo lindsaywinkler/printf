@@ -44,3 +44,14 @@ We then want to be able to scrub through time and see status of everything.
 That might mean calling a status endpoint with a datetime, or scrubbing 
 through in the UI, or it might be showing expected part allocations on
 a graph, and a Gantt showing expected print job times.
+
+---
+The current design intent is to query the graph through GraphQL 
+but to POST parts for printing via extensive business logic in
+a regular FastAPI endpoint.  Partly to have the distinction as a 
+discussion point, because we could obviously add logic in a 
+GraphQL mutation.
+
+Similarly, to have concrete examples to discuss, I intend to have
+two front ends - one handwritten, one generated automatically 
+but specified through openspec.

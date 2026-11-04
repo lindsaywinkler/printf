@@ -6,11 +6,31 @@ from typing import Annotated
 
 import strawberry
 from fastapi import Depends, FastAPI
-from model.model import Printer, PrinterStatus
+from model.model import Material, Printer
 from model.session import get_session
 from sqlmodel import Session, select
 from strawberry.fastapi import BaseContext, GraphQLRouter
 from strawberry.types import Info
+from strawberry_sqlalchemy_mapper import StrawberrySQLAlchemyLoader
+
+# For the purposes of quickly sketching ideas end to end,
+# elected to use the strawberry sqlalchemy mapper.
+#
+# This has many advantages in reducing the amount of boilerplate
+# to write. Top level resolvers are written by hand, but
+# fields and relationships, as well as batch loading (necessary
+# for performance if we have lots of jobs) are taken care of
+# automatically.
+#
+# The tradeoffs are:
+# - less control over what fields are exposed (this is part of the advantage
+# here - I want new fields to be available as soon as models are edited)
+# - more complex query client side
+#
+# In a production context, I may make a different decision, but
+# for the sake of prototyping, this is the fastest way to
+# end to end functionality.
+mapper = StrawberrySQLAlchemyLoader()
 
 SessionDep = Annotated[Session, Depends(get_session)]
 
@@ -22,6 +42,9 @@ def health() -> dict[str, str]:
     return {"status": "ok"}
 
 
+# Not really needed anymore.
+# We'd query instead through the GraphQL endpoint, but
+# leaving as an example template of the alternative approach
 @app.get("/printers")
 def list_printers(session: SessionDep) -> list[Printer]:
     return list(session.exec(select(Printer)).all())
@@ -37,24 +60,17 @@ def get_context(session: SessionDep) -> Context:
     return Context(session)
 
 
-strawberry.enum(PrinterStatus)
-
-
-@strawberry.type
+@mapper.type(Printer)
 class PrinterType:
-    id: int
-    name: str
-    highest_resolution: int
-    status: PrinterStatus
+    pass
 
-    @classmethod
-    def from_model(cls, printer: Printer) -> "PrinterType":
-        return cls(
-            id=printer.id,
-            name=printer.name,
-            highest_resolution=printer.highest_resolution,
-            status=printer.status,
-        )
+
+@mapper.type(Material)
+class MaterialType:
+    pass
+
+
+mapper.finalize()
 
 
 @strawberry.type
