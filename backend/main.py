@@ -2,16 +2,31 @@
 FastAPI application entry point.
 """
 
+from datetime import datetime
 from typing import Annotated
 
 import strawberry
 from fastapi import Depends, FastAPI
-from model.model import Material, Printer
+from model.model import (
+    Build,
+    Cure,
+    Event,
+    Job,
+    MaintenanceEvent,
+    Material,
+    Part,
+    Printer,
+    Wash,
+)
 from model.session import get_session
 from sqlmodel import Session, select
+from sqlmodel.sql.sqltypes import AutoString, UTCDateTime
 from strawberry.fastapi import BaseContext, GraphQLRouter
 from strawberry.types import Info
-from strawberry_sqlalchemy_mapper import StrawberrySQLAlchemyLoader
+from strawberry_sqlalchemy_mapper import (
+    StrawberrySQLAlchemyLoader,
+    StrawberrySQLAlchemyMapper,
+)
 
 # For the purposes of quickly sketching ideas end to end,
 # elected to use the strawberry sqlalchemy mapper.
@@ -30,7 +45,13 @@ from strawberry_sqlalchemy_mapper import StrawberrySQLAlchemyLoader
 # In a production context, I may make a different decision, but
 # for the sake of prototyping, this is the fastest way to
 # end to end functionality.
-mapper = StrawberrySQLAlchemyLoader()
+mapper = StrawberrySQLAlchemyMapper(
+    model_to_type_name=lambda model: f"{model.__name__}Type",
+    extra_sqlalchemy_type_to_strawberry_type_map={
+        AutoString: str,
+        UTCDateTime: datetime,
+    },
+)
 
 SessionDep = Annotated[Session, Depends(get_session)]
 
@@ -54,6 +75,7 @@ class Context(BaseContext):
     def __init__(self, session: Session):
         super().__init__()
         self.session = session
+        self.sqlalchemy_loader = StrawberrySQLAlchemyLoader(bind=session)
 
 
 def get_context(session: SessionDep) -> Context:
@@ -70,6 +92,41 @@ class MaterialType:
     pass
 
 
+@mapper.type(Build)
+class BuildType:
+    pass
+
+
+@mapper.type(Job)
+class JobType:
+    pass
+
+
+@mapper.type(Part)
+class PartType:
+    pass
+
+
+@mapper.type(Cure)
+class CureType:
+    pass
+
+
+@mapper.type(Wash)
+class WashType:
+    pass
+
+
+@mapper.type(Event)
+class EventType:
+    pass
+
+
+@mapper.type(MaintenanceEvent)
+class MaintenanceEventType:
+    pass
+
+
 mapper.finalize()
 
 
@@ -77,13 +134,27 @@ mapper.finalize()
 class Query:
     @strawberry.field
     def printers(self, info: Info[Context, None]) -> list[PrinterType]:
-        printers = info.context.session.exec(select(Printer)).all()
-        return [PrinterType.from_model(p) for p in printers]
+        return list(info.context.session.exec(select(Printer)).all())
 
     @strawberry.field
     def printer(self, info: Info[Context, None], id: int) -> PrinterType | None:
-        printer = info.context.session.get(Printer, id)
-        return PrinterType.from_model(printer) if printer else None
+        return info.context.session.get(Printer, id)
+
+    @strawberry.field
+    def materials(self, info: Info[Context, None]) -> list[MaterialType]:
+        return list(info.context.session.exec(select(Material)).all())
+
+    @strawberry.field
+    def material(self, info: Info[Context, None], id: int) -> MaterialType | None:
+        return info.context.session.get(Material, id)
+
+    @strawberry.field
+    def cures(self, info: Info[Context, None]) -> list[CureType]:
+        return list(info.context.session.exec(select(Cure)).all())
+
+    @strawberry.field
+    def cure(self, info: Info[Context, None], id: int) -> CureType | None:
+        return info.context.session.get(Cure, id)
 
 
 schema = strawberry.Schema(query=Query)
