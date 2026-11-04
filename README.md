@@ -62,3 +62,9 @@ with `kind load docker-image printf-api:dev`
 
 And then we need to forward the ports: `kubectl port-forward svc/backend 8000:80`
 (when actually running the application, we don't forward Postgres port!)
+
+Seed data into database in the cluster, so that there's a test print farm
+set up:
+`kubectl exec deploy/backend -- python -m util.seed`
+
+Explore the graphql endpoint at http://localhost:8000/graphql
