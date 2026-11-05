@@ -25,8 +25,8 @@ def safe_create(session: Session, model, name: str, **fields):
 
 def main() -> None:
     with Session(engine) as session:
-        grey = safe_create(session, Material, "grey_resin")
-        clear = safe_create(session, Material, "clear_resin")
+        grey = safe_create(session, Material, "grey_resin", 1)
+        clear = safe_create(session, Material, "clear_resin", 1)
 
         safe_create(
             session,
