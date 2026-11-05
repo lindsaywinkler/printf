@@ -156,6 +156,58 @@ class Query:
     def cure(self, info: Info[Context, None], id: int) -> CureType | None:
         return info.context.session.get(Cure, id)
 
+    @strawberry.field
+    def washes(self, info: Info[Context, None]) -> list[WashType]:
+        return list(info.context.session.exec(select(Wash)).all())
+
+    @strawberry.field
+    def wash(self, info: Info[Context, None], id: int) -> WashType | None:
+        return info.context.session.get(Wash, id)
+
+    @strawberry.field
+    def parts(self, info: Info[Context, None]) -> list[PartType]:
+        return list(info.context.session.exec(select(Part)).all())
+
+    @strawberry.field
+    def part(self, info: Info[Context, None], id: int) -> PartType | None:
+        return info.context.session.get(Part, id)
+
+    @strawberry.field
+    def builds(self, info: Info[Context, None]) -> list[BuildType]:
+        return list(info.context.session.exec(select(Build)).all())
+
+    @strawberry.field
+    def build(self, info: Info[Context, None], id: int) -> BuildType | None:
+        return info.context.session.get(Build, id)
+
+    @strawberry.field
+    def jobs(self, info: Info[Context, None]) -> list[JobType]:
+        return list(info.context.session.exec(select(Job)).all())
+
+    @strawberry.field
+    def job(self, info: Info[Context, None], id: int) -> JobType | None:
+        return info.context.session.get(Job, id)
+
+    @strawberry.field
+    def events(self, info: Info[Context, None]) -> list[EventType]:
+        return list(info.context.session.exec(select(Event)).all())
+
+    @strawberry.field
+    def event(self, info: Info[Context, None], id: int) -> EventType | None:
+        return info.context.session.get(Event, id)
+
+    @strawberry.field
+    def maintenance_events(
+        self, info: Info[Context, None]
+    ) -> list[MaintenanceEventType]:
+        return list(info.context.session.exec(select(MaintenanceEvent)).all())
+
+    @strawberry.field
+    def maintenance_event(
+        self, info: Info[Context, None], id: int
+    ) -> MaintenanceEventType | None:
+        return info.context.session.get(MaintenanceEvent, id)
+
 
 schema = strawberry.Schema(query=Query)
 app.include_router(GraphQLRouter(schema, context_getter=get_context), prefix="/graphql")
