@@ -6,7 +6,7 @@ from datetime import datetime
 from typing import Annotated
 
 import strawberry
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, HTTPException, status
 from model.model import (
     Build,
     Cure,
@@ -18,6 +18,7 @@ from model.model import (
     Printer,
     Wash,
 )
+from model.schemas import PartCreate, PartRead
 from model.session import get_session
 from sqlmodel import Session, select
 from sqlmodel.sql.sqltypes import AutoString, UTCDateTime
@@ -69,6 +70,32 @@ def health() -> dict[str, str]:
 @app.get("/printers")
 def list_printers(session: SessionDep) -> list[Printer]:
     return list(session.exec(select(Printer)).all())
+
+
+@app.post("/parts", status_code=status.HTTP_201_CREATED)
+def submit_part(part_in: PartCreate, session: SessionDep) -> PartRead:
+    """
+    Submit a part for printing.
+
+    It still needs to be added to a build and then the build
+    needs print, wash and cure jobs - all of which must finish by
+    the part's due time.
+
+    If the part cannot be completed by that time, it should be
+    completed as soon as possible, with the meaning of "as soon as
+    possible" being at the scheduling algorithm's discretion.
+    """
+    if session.get(Material, part_in.required_material_id) is None:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail=f"Material {part_in.required_material_id} does not exist",
+        )
+
+    part = Part.model_validate(part_in)
+    session.add(part)
+    session.commit()
+    session.refresh(part)
+    return PartRead.model_validate(part)
 
 
 class Context(BaseContext):
