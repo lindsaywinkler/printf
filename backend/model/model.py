@@ -82,19 +82,15 @@ class Build(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     name: str
 
+    # TODO - The build needs to enforce that all parts have the same
+    # resolution and material.
+
     # Resolution and material for a build are derived from the parts
     # in the build.  Each time we add a part, we check that the
     # part has the same resolution and material as the parts already
     # in the build.
     parts: list["Part"] = Relationship(back_populates="build")
 
-    # TODO - Add calculated field which determines print time
-    # according to height of the build, which is the height of the
-    # tallest part in the build.
-
-    # TODO - Add calculated field which determines cure time
-    # according to sum of volume of all parts and a cure
-    # factor for the resin/material itself.
     status: BuildStatus = BuildStatus.pending
 
     # send_by is the time by which this build should be sent to
@@ -102,6 +98,16 @@ class Build(SQLModel, table=True):
     # be completed by the soonest required time for every part in
     # the build.
     send_by: datetime
+
+    @property
+    def required_material(self) -> Material | None:
+        # self.parts check also checks for empty list - empty list is falsy
+        return self.parts[0].required_material if self.parts else None
+
+    @property
+    def required_resolution(self) -> int | None:
+        # self.parts check also checks for empty list - empty list is falsy
+        return self.parts[0].required_resolution | None
 
 
 class Part(SQLModel, table=True):
