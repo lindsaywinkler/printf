@@ -20,6 +20,7 @@ from model.model import (
 )
 from model.schemas import PartCreate, PartRead
 from model.session import get_session
+from scheduler import schedule_part
 from sqlmodel import Session, select
 from sqlmodel.sql.sqltypes import AutoString, UTCDateTime
 from strawberry.fastapi import BaseContext, GraphQLRouter
@@ -93,6 +94,7 @@ def submit_part(part_in: PartCreate, session: SessionDep) -> PartRead:
 
     part = Part.model_validate(part_in)
     session.add(part)
+    schedule_part(session, part)
     session.commit()
     session.refresh(part)
 

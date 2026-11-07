@@ -14,15 +14,12 @@ for builds, and to derive total production latency implied for each part
 from model.model import (
     Part,
 )
+from sqlmodel import Session
 
 
-# TODO Maybe better to pass in the part object rather than the ID
-# though we'll still have to have access to a DB session in order to
-# look up builds.
-def submit_part(part: Part):
+def schedule_part(session: Session, part: Part):
     # Process this part by:
     #
-    # - Looking up the part by ID in the DB
     # - Finding every open build that could accommodate this part by resolution and resin
     # - Filter candidate builds by checking how long this part would take to produce
     #  (print, wash, cure) if added to a candidate build and whether that would push
@@ -37,11 +34,11 @@ def submit_part(part: Part):
 
 
 # TODO Maybe better to pass in the build object rather than the build ID
-def calculate_print_time(parts: list[Part]):
+def calculate_print_time(session: Session, parts: list[Part]):
     pass
 
 
-def calculate_wash_time(parts: list[Part]):
+def calculate_wash_time(session: Session, parts: list[Part]):
     # This will just be a constant
     pass
 
