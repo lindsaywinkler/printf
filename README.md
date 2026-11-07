@@ -68,3 +68,18 @@ set up:
 `kubectl exec deploy/backend -- python -m util.seed`
 
 Explore the graphql endpoint at http://localhost:8000/graphql
+
+---
+
+The front end starts from a generated template
+from Vite - the standard starting point for a React front end.
+
+The dev server, which supports all the machinery required for hot reloading, can be run by:
+
+```
+cd frontend
+npm run dev
+```
+
+The front end is then reachable at:
+http://localhost:5173
