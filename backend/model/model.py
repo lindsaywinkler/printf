@@ -70,6 +70,14 @@ class Cure(SQLModel, table=True):
     status: CureStatus = CureStatus.offline
 
 
+class BuildStatus(StrEnum):
+    pending = "pending"
+    printing = "printing"
+    washing = "washing"
+    curing = "curing"
+    done = "done"
+
+
 class Build(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     name: str
@@ -87,6 +95,13 @@ class Build(SQLModel, table=True):
     # TODO - Add calculated field which determines cure time
     # according to sum of volume of all parts and a cure
     # factor for the resin/material itself.
+    status: BuildStatus = BuildStatus.pending
+
+    # send_by is the time by which this build should be sent to
+    # the printer to ensure that every job (print, wash, cure) can
+    # be completed by the soonest required time for every part in
+    # the build.
+    send_by: datetime
 
 
 class Part(SQLModel, table=True):
