@@ -68,3 +68,18 @@ Next major steps are:
 
 Seed script is broken because models (eg. material) have new 
 non-nullable fields.
+
+When a print job is submitted, we should 
+simulate sending a message over MQTT to notify the
+printer that a job is ready.  Then the printer should
+retrieve the file to be printed over HTTPS.
+
+---
+
+Need to write the logic for handling a part
+being submitted for printing.  For demo purposes,
+a 24 print window from submission time makes sense.
+
+For the handwritten front end, show a form that permits
+submission of a part for printing, and then a list of current
+parts for printing.  These can both work with HTTP fetch.
