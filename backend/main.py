@@ -95,6 +95,15 @@ def submit_part(part_in: PartCreate, session: SessionDep) -> PartRead:
     session.add(part)
     session.commit()
     session.refresh(part)
+
+    # At this point, we have recorded existence of the part but not
+    # taken any action to have it assembled into a build or queued for
+    # printing.
+
+    # Also need a process that watches the print queue and sends the
+    # job out (or pretends to!) to each printer when the time comes
+    # to print (this should not be done ahead of time because we might
+    # want to modify the build if more parts arrive)
     return PartRead.model_validate(part)
 
 

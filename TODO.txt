@@ -88,3 +88,16 @@ Add form validation client side + better
 presentation of server errors.
 
 Get rid of the stepper controls for numbers in the <input>s in the form
+
+Could potentially include an MQTT broker in the cluster and 
+simulate a printer getting a message from the broker and then 
+pulling down a build for printing.  Would add some field to the
+build that points to the STL file for that build and then create
+an empty mock file for that purpose.
+
+At part submission time, we need to have some validation against the
+capabilities of the print farm.  There is no point submitting a part that
+can't be printed because it needs a resolution or a resin that the farm
+doesn't support.  Conversely, just having a printer offline or out of 
+resin temporarily shouldn't prevent part submission but should maybe 
+trigger a warning about not being able to predict completion time.
