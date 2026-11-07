@@ -143,6 +143,7 @@ class Part(SQLModel, table=True):
     # mm maybe a poor choice because not an SI unit, but
     # likely most natural unit for a user to specify
     height: float
+    """Height in mm"""
 
     # Volume in cm^3.  Again, not an SI unit, but probably
     # the most natural way for a user to think of volume.
@@ -150,6 +151,7 @@ class Part(SQLModel, table=True):
     # Volume is required because the cure time will be derived
     # from volume and material (Elsey's two potato problem)
     volume: float
+    """Volume in cm^3"""
 
 
 # A Job could be a physical job or a computational job.
