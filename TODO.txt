@@ -83,3 +83,8 @@ a 24 print window from submission time makes sense.
 For the handwritten front end, show a form that permits
 submission of a part for printing, and then a list of current
 parts for printing.  These can both work with HTTP fetch.
+
+Add form validation client side + better
+presentation of server errors.
+
+Get rid of the stepper controls for numbers in the <input>s in the form
