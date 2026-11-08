@@ -100,6 +100,11 @@ class Build(SQLModel, table=True):
     send_by: datetime
 
     @property
+    def required_material_id(self) -> int | None:
+        # self.parts check also checks for empty list - empty list is falsy
+        return self.parts[0].required_material_id if self.parts else None
+
+    @property
     def required_material(self) -> Material | None:
         # self.parts check also checks for empty list - empty list is falsy
         return self.parts[0].required_material if self.parts else None
@@ -107,7 +112,7 @@ class Build(SQLModel, table=True):
     @property
     def required_resolution(self) -> int | None:
         # self.parts check also checks for empty list - empty list is falsy
-        return self.parts[0].required_resolution | None
+        return self.parts[0].required_resolution if self.parts else None
 
 
 class Part(SQLModel, table=True):

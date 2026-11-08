@@ -48,7 +48,7 @@ def schedule_part(session: Session, part: Part):
     candidate_builds = [
         build
         for build in pending_builds
-        if build.required_material.id == part.required_material.id
+        if build.required_material_id == part.required_material_id
         and build.required_resolution == part.required_resolution
     ]
 
