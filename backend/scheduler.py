@@ -99,6 +99,12 @@ def schedule_part(session: Session, part: Part):
     # checking that the part can actually be added and
     # must update send_by time.
 
+    # Now add a job for each part of the process
+    # Job points to the correct device and has events
+    # at the appropriate time.  The jobs are added to the
+    # session so that they are later committed with the
+    # rest of the session.
+
 
 # Time in seconds
 def calculate_print_time(session: Session, parts: list[Part]):

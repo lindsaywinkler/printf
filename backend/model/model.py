@@ -5,6 +5,7 @@ Database models are defined here.
 from datetime import datetime
 from enum import StrEnum
 
+from sqlalchemy import CheckConstraint
 from sqlmodel import Field, Relationship, SQLModel
 
 
@@ -171,6 +172,19 @@ class Job(SQLModel, table=True):
     # We print the whole build, or wash it, cure it, or separate into parts
     build_id: int | None = Field(default=None, foreign_key="build.id", index=True)
     build: Build | None = Relationship()
+
+    # The machine this job runs on.
+    # It might be a printer, a wash or a cure.
+    printer_id: int | None = Field(default=None, foreign_key="printer.id", index=True)
+    printer: Printer | None = Relationship()
+    wash_id: int | None = Field(default=None, foreign_key="wash.id", index=True)
+    wash: Wash | None = Relationship()
+    cure_id: int | None = Field(default=None, foreign_key="cure.id", index=True)
+    cure: Cure | None = Relationship()
+
+    @property
+    def machine(self) -> Printer | Wash | Cure | None:
+        return self.printer or self.wash or self.cure
 
     # TODO - Add expected duration, which will come from the build
     # This will feed into scheduling: given a start time and duration,
