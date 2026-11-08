@@ -105,6 +105,18 @@ def schedule_part(session: Session, part: Part):
     # session so that they are later committed with the
     # rest of the session.
 
+    # We start with the send_by time of the build and then
+    # add a print job starting then, and a wash and cure job
+    # following on.
+    #
+    # If the build has jobs already, we modify the times
+    # as required.  If there are no jobs, we create and add them.
+    #
+    # TODO - It might not be possible to find a printer that
+    # can print the build at all.  It might not be possible to schedule
+    # the job at the appropriate time because machines might be
+    # busy.
+
 
 # Time in seconds
 def calculate_print_time(session: Session, parts: list[Part]):

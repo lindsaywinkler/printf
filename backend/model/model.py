@@ -92,6 +92,9 @@ class Build(SQLModel, table=True):
     # in the build.
     parts: list["Part"] = Relationship(back_populates="build")
 
+    # The print, wash and cure jobs scheduled for this build
+    jobs: list["Job"] = Relationship(back_populates="build")
+
     status: BuildStatus = BuildStatus.pending
 
     # send_by is the time by which this build should be sent to
@@ -171,7 +174,7 @@ class Job(SQLModel, table=True):
     # Physical jobs operate on builds
     # We print the whole build, or wash it, cure it, or separate into parts
     build_id: int | None = Field(default=None, foreign_key="build.id", index=True)
-    build: Build | None = Relationship()
+    build: Build | None = Relationship(back_populates="jobs")
 
     # The machine this job runs on.
     # It might be a printer, a wash or a cure.
