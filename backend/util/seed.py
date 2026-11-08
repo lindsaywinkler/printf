@@ -5,7 +5,15 @@ Just adds a few printers and a few different resins that we can work
 with, so that we have some kind of test print farm set up to work with.
 """
 
-from model.model import Material, Printer, PrinterStatus
+from model.model import (
+    Cure,
+    CureStatus,
+    Material,
+    Printer,
+    PrinterStatus,
+    Wash,
+    WashStatus,
+)
 from model.session import engine
 from sqlmodel import Session, select
 
@@ -25,8 +33,8 @@ def safe_create(session: Session, model, name: str, **fields):
 
 def main() -> None:
     with Session(engine) as session:
-        grey = safe_create(session, Material, "grey_resin", 1)
-        clear = safe_create(session, Material, "clear_resin", 1)
+        grey = safe_create(session, Material, "grey_resin", cure_time_factor=1)
+        clear = safe_create(session, Material, "clear_resin", cure_time_factor=1)
 
         safe_create(
             session,
@@ -58,6 +66,19 @@ def main() -> None:
             highest_resolution=100,
             status=PrinterStatus.breakdown,
             current_material=grey,
+        )
+        # Also create one wash and one cure station.
+        safe_create(
+            session,
+            Wash,
+            "wash_01",
+            status=WashStatus.ready,
+        )
+        safe_create(
+            session,
+            Cure,
+            "cure_01",
+            status=CureStatus.ready,
         )
 
         session.commit()
