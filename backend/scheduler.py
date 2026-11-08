@@ -12,10 +12,12 @@ for builds, and to derive total production latency implied for each part
 """
 
 import math
+import uuid
 from datetime import UTC, datetime, timedelta
 
 from model.model import Build, BuildStatus, Part
-from sqlmodel import Session, select, selectinload
+from sqlalchemy.orm import selectinload
+from sqlmodel import Session, select
 
 
 def schedule_part(session: Session, part: Part):
@@ -56,7 +58,7 @@ def schedule_part(session: Session, part: Part):
     now = datetime.now(UTC)
 
     def build_handling_time(build: Build) -> int:
-        augmented_parts_list = build.parts + part
+        augmented_parts_list = build.parts + [part]
         print_time = calculate_print_time(session, augmented_parts_list)
         wash_time = calculate_wash_time(session, augmented_parts_list)
         cure_time = calculate_cure_time(session, augmented_parts_list)
@@ -84,12 +86,12 @@ def schedule_part(session: Session, part: Part):
     if viable_builds:
         target_build = viable_builds[0]
     else:
-        target_build = Build()
+        target_build = Build(name=f"build-{uuid.uuid4()}", send_by=now)
         session.add(target_build)
 
     part.build = target_build
-    send_by = min([part.due_time for part in target_build.parts]) - build_handling_time(
-        target_build
+    send_by = min([part.due_time for part in target_build.parts]) - timedelta(
+        seconds=build_handling_time(target_build)
     )
     target_build.send_by = send_by
     # Then add this part to the new build.
